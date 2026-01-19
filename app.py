@@ -56,7 +56,7 @@ def get_blueprint_details(blueprint_name: str, df: pd.DataFrame) -> pd.DataFrame
 # --- Streamlit Application Main Function ---
 def blueprint_app():
     # Title will now span the full width
-    st.title("Arc Raiders Blueprint Finder")
+    st.title("Arc Raiders Blueprint Tracker")
     st.markdown("Click the selection box and start typing to filter and select a blueprint.")
 
     # 1. Load data from the sheet
