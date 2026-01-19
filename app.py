@@ -122,19 +122,6 @@ def blueprint_app():
                     background-color: rgba(255, 255, 255, 0.06);
                 }
 
-                /* Explicitly LEFT-ALIGN the long text columns for readability (using nth-child) */
-                /* NOTE: If your column order changes, these index numbers MUST change. 
-                   Assuming Blueprint (1), Map (2), Map Condition (3), Location (4), 
-                   Container (5), Details (6). Index 1 is for the row index. */
-                .centered-table th:nth-child(6), 
-                .centered-table td:nth-child(6) {
-                    text-align: left !important; /* Container */
-                }
-                .centered-table th:nth-child(7), 
-                .centered-table td:nth-child(7) {
-                    text-align: left !important; /* Details */
-                }
-
                 /* Text colors per column - rely on column index */
                 .centered-table th:nth-child(2),
                 .centered-table td:nth-child(2) { color: purple; }
