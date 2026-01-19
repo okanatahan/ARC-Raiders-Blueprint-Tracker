@@ -19,12 +19,19 @@ def load_data():
         conn = st.connection("gsheets", type=GSheetsConnection)
         df = conn.read(worksheet=SHEET_WORKSHEET_NAME)
         
+        # Standardize column headers for reliable access
         df.columns = [col.upper() for col in df.columns]
         
+        # Rename the assumed blueprint column if needed
         if df.columns[0] == df.columns[0]:
             df.rename(columns={df.columns[0]: 'BLUEPRINT'}, inplace=True)
             
+        # Remove rows where the blueprint name is empty
         df.dropna(subset=['BLUEPRINT'], inplace=True)
+        
+        # --- FINAL FIX: Replace all NaN (Not a Number) values with an empty string ---
+        df.fillna('', inplace=True)
+        # ---------------------------------------------------------------------------
         
         return df
         
@@ -63,15 +70,14 @@ def blueprint_app():
     # Start with an empty string as the placeholder for the input box
     all_blueprint_options = [''] + sorted(df['BLUEPRINT'].unique().tolist())
     
-    # 3. CONSOLIDATED INPUT/SELECT BOX (The Fix)
-    # This uses a single st.selectbox which, when you click it, allows typing to filter.
+    # 3. CONSOLIDATED INPUT/SELECT BOX
     blueprint_selection = st.selectbox(
         "Select Blueprint:", 
         options=all_blueprint_options,
         index=0, # Forces the selector to the empty string placeholder
         key='consolidated_select', 
-        label_visibility='collapsed', # Collapse the label to make it look cleaner
-        placeholder='Type to search, or select a blueprint...' # Add a placeholder text
+        label_visibility='collapsed', 
+        placeholder='Type to search, or select a blueprint...'
     )
 
     # 4. Logic to display results
@@ -95,7 +101,8 @@ def blueprint_app():
 
                 .centered-table th,
                 .centered-table td {
-                    text-align: center !important;
+                    /* Alignment for shorter columns */
+                    text-align: center !important; 
                     padding: 10px 12px;
                     white-space: normal;
                     word-wrap: break-word;
@@ -113,6 +120,19 @@ def blueprint_app():
                 /* Hover effect */
                 .centered-table tr:hover {
                     background-color: rgba(255, 255, 255, 0.06);
+                }
+
+                /* Explicitly LEFT-ALIGN the long text columns for readability (using nth-child) */
+                /* NOTE: If your column order changes, these index numbers MUST change. 
+                   Assuming Blueprint (1), Map (2), Map Condition (3), Location (4), 
+                   Container (5), Details (6). Index 1 is for the row index. */
+                .centered-table th:nth-child(6), 
+                .centered-table td:nth-child(6) {
+                    text-align: left !important; /* Container */
+                }
+                .centered-table th:nth-child(7), 
+                .centered-table td:nth-child(7) {
+                    text-align: left !important; /* Details */
                 }
 
                 /* Text colors per column - rely on column index */
@@ -152,7 +172,6 @@ def blueprint_app():
             st.success(f"Found {len(details_df)} different records for this blueprint.")
         else:
             st.error(f"Blueprint **'{blueprint_selection}'** not found in the data.")
-    # No warning if placeholder is selected, as that's the default state
 
 if __name__ == "__main__":
     blueprint_app()
