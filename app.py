@@ -73,22 +73,9 @@ def blueprint_app():
         label_visibility='collapsed', # Collapse the label to make it look cleaner
         placeholder='Type to search, or select a blueprint...' # Add a placeholder text
     )
-    
-    # 4. Display the Filtered Selection Box
-    # The first item in the list is automatically selected on load/filter, so no placeholder is needed.
-    if filtered_options:
-        blueprint_selection = st.selectbox(
-            "Matching Blueprints:", 
-            options=filtered_options,
-            index=0, # Forces the selector to the first result
-            key='filtered_select', 
-            label_visibility='collapsed'
-        )
-    else:
-        st.warning(f"No blueprints found matching '{search_term}'.")
-        return
 
-    # 5. Logic to display results
+    # 4. Logic to display results
+    # Only run the display logic if a valid blueprint is selected (i.e., not the empty string)
     if blueprint_selection:
         
         details_df = get_blueprint_details(blueprint_selection, df)
@@ -100,8 +87,6 @@ def blueprint_app():
             st.markdown(
                 """
                 <style>
-                /* NOTE: The max-width styling for the overall container is NOT here 
-                   because st.set_page_config(layout="wide") is used. */
                 .centered-table {
                     width: 100%;
                     border-collapse: collapse;
@@ -130,7 +115,7 @@ def blueprint_app():
                     background-color: rgba(255, 255, 255, 0.06);
                 }
 
-                /* Text colors per column - Keep this for color, but rely on dataframe size for fit */
+                /* Text colors per column - rely on column index */
                 .centered-table th:nth-child(2),
                 .centered-table td:nth-child(2) { color: purple; }
 
@@ -167,6 +152,7 @@ def blueprint_app():
             st.success(f"Found {len(details_df)} different records for this blueprint.")
         else:
             st.error(f"Blueprint **'{blueprint_selection}'** not found in the data.")
+    # No warning if placeholder is selected, as that's the default state
 
 if __name__ == "__main__":
     blueprint_app()
