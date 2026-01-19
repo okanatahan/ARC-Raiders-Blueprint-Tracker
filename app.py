@@ -50,7 +50,7 @@ def get_blueprint_details(blueprint_name: str, df: pd.DataFrame) -> pd.DataFrame
 def blueprint_app():
     # Title will now span the full width
     st.title("Arc Raiders Blueprint Finder")
-    st.markdown("Start typing a name to filter the blueprint selection below.")
+    st.markdown("Click the selection box and start typing to filter and select a blueprint.")
 
     # 1. Load data from the sheet
     df = load_data()
@@ -60,25 +60,20 @@ def blueprint_app():
         return
 
     # 2. Extract unique blueprint names
-    all_blueprint_options = sorted(df['BLUEPRINT'].unique().tolist())
+    # Start with an empty string as the placeholder for the input box
+    all_blueprint_options = [''] + sorted(df['BLUEPRINT'].unique().tolist())
     
-    # 3. Text Input for Filtering
-    search_term = st.text_input(
-        "Search Blueprints:", 
-        placeholder="Type a name (e.g., WOLFPACK)",
-        label_visibility='collapsed'
-    ).strip()
-
-    # Filter the options based on the search term
-    if search_term:
-        filtered_options = [
-            name for name in all_blueprint_options 
-            if search_term.lower() in name.lower()
-        ]
-    else:
-        # If no search term, show all options
-        filtered_options = all_blueprint_options
-
+    # 3. CONSOLIDATED INPUT/SELECT BOX (The Fix)
+    # This uses a single st.selectbox which, when you click it, allows typing to filter.
+    blueprint_selection = st.selectbox(
+        "Select Blueprint:", 
+        options=all_blueprint_options,
+        index=0, # Forces the selector to the empty string placeholder
+        key='consolidated_select', 
+        label_visibility='collapsed', # Collapse the label to make it look cleaner
+        placeholder='Type to search, or select a blueprint...' # Add a placeholder text
+    )
+    
     # 4. Display the Filtered Selection Box
     # The first item in the list is automatically selected on load/filter, so no placeholder is needed.
     if filtered_options:
